@@ -16,7 +16,8 @@ function trackerActions () {
                     "Add New Department",
                     "Add New Role",
                     "Add New Employee",
-                    "Update Employee Roles"
+                    "Update Employee Roles",
+                    "Exit"
                 ]
             }
         ])
@@ -36,10 +37,11 @@ function trackerActions () {
                 addEmployee();
             } else if (response.action === "Update Employee Roles") {
                 updateEmployeeRoles();
+            } else if (response.action === "Exit") {
+                process.exit();
             }
+            
         });
-
-
 
 };
 
@@ -159,7 +161,7 @@ function addEmployee () {
                         })
                     },
                     {
-                        message: "What is the employee's manager?",
+                        message: "Who is the employee's manager?",
                         type: "list",
                         name: "manager_id",
                         choices: employeeSelections,                                                                  
@@ -258,6 +260,55 @@ function viewEmployees () {
 
 // Update Employee Roles
 function updateEmployeeRoles () {
+
+    getRoles((roles) => {   
+
+        getEmployees((employees) => {
+
+            employeeSelections = employees.map (employee => {                                    
+                return {
+                    name: employee.first_name + " " + employee.last_name,
+                    value: employee.id
+                };             
+            });        
+            
+            inquirer
+                .prompt([                
+                    {
+                        message: "Who do you want to update?",
+                        type: "list",
+                        name: "id",
+                        choices: employeeSelections,                                                                  
+                    },
+                    {
+                        message: "What is the new role for the employee?",
+                        type: "list",
+                        name: "role_id",
+                        choices: roles.map ( role => {                                                  
+                            return {
+                                name: role.title,
+                                value: role.id
+                            };                                 
+                        })                                                                  
+                    }                 
+                ])
+                .then((response) => {
+
+                    connection.query("UPDATE employee SET role_id = ? WHERE id = ?", [response.role_id, response.id], (err, result) => {
+
+                        if (err) throw err;
+
+                        console.log(result);
+
+                        trackerActions();
+
+                    })            
+
+                });
+
+        }); 
+    
+    });
     
 };
 
