@@ -40,7 +40,7 @@ function trackerActions () {
             } else if (response.action === "Exit") {
                 process.exit();
             }
-            
+
         });
 
 };
@@ -296,9 +296,7 @@ function updateEmployeeRoles () {
 
                     connection.query("UPDATE employee SET role_id = ? WHERE id = ?", [response.role_id, response.id], (err, result) => {
 
-                        if (err) throw err;
-
-                        console.log(result);
+                        if (err) throw err;                        
 
                         trackerActions();
 
